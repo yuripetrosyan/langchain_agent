@@ -48,3 +48,13 @@ agent_executor = AgentExecutor(agent=agent, tools=[], verbose=True)
 raw_response = agent_executor.invoke({"query": "What is the capital of the Netherlands?"})
 
 print(raw_response)
+
+
+try:
+    structure_response = parser.parse(raw_response.get("output")[0]["text"])
+    print(structure_response)
+
+except Exception as e:
+    print("Error", e, "Raw response -   " ,raw_response)
+
+
