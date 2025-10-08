@@ -17,7 +17,7 @@ class ResearchResponse(BaseModel):
     tools_used: list[str]
 
 
-llm = ChatOpenAI(model = "gpt-5")
+llm = ChatOpenAI(model = "gpt-5-nano")
 parser = PydanticOutputParser(pydantic_object=ResearchResponse)
 
 prompt = ChatPromptTemplate.from_messages(
@@ -46,9 +46,9 @@ agent = create_tool_calling_agent(
 )
 
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-raw_response = agent_executor.invoke({"query": "What is the capital of the Netherlands?"})
+query = input("What can i help you research? :  ")
+raw_response = agent_executor.invoke({"query": query"})
 
-print(raw_response)
 
 
 try:
