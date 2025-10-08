@@ -33,3 +33,5 @@ build/
 dist/
 *.egg-info/
 
+# Generated research artifacts
+outputs/

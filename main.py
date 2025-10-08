@@ -6,7 +6,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 
-from tools import search_tool
+from tools import search_tool, wiki_tool, save_tool
 
 load_dotenv()
 
@@ -19,6 +19,7 @@ class ResearchResponse(BaseModel):
 
 llm = ChatOpenAI(model = "gpt-5-nano")
 parser = PydanticOutputParser(pydantic_object=ResearchResponse)
+
 
 prompt = ChatPromptTemplate.from_messages(
     [
@@ -36,9 +37,7 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 ).partial(format_instructions=parser.get_format_instructions())
 
-
-
-tools = [search_tool] #, wiki_tool, save_tool]
+tools = [search_tool, wiki_tool, save_tool]
 agent = create_tool_calling_agent(
     llm=llm,
     prompt=prompt,
@@ -46,16 +45,22 @@ agent = create_tool_calling_agent(
 )
 
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-query = input("What can i help you research? :  ")
+query = input("What can i help you research? ")
 raw_response = agent_executor.invoke({"query": query})
 
-
-
 try:
-    structure_response = parser.parse(raw_response.get("output")[0]["text"])
-    print(structure_response)
+    output_text = raw_response.get("output")
+    if output_text is None:
+        raise ValueError("Agent response did not include an 'output' field")
 
+    structured_response = parser.parse(output_text)
+    if "save_text_to_file" not in structured_response.tools_used:
+        structured_response.tools_used.append("save_text_to_file")
+    print(structured_response)
+
+    save_message = save_tool.func(
+        structured_response.model_dump_json(indent=2)
+    )
+    print(save_message)
 except Exception as e:
-    print("Error", e, "Raw response -   " ,raw_response)
-
-
+    print("Error parsing response", e, "Raw Response - ", raw_response)
