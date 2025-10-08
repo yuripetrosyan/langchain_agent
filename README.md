@@ -1,1 +1,1 @@
-An AI agent build with langchain and python that helps you with research.
+An AI agent, built with langchain and python that helps you with research.
