@@ -60,7 +60,7 @@ try:
 
     save_message = save_tool.func(
         structured_response.model_dump_json(indent=2)
-    )
+    ) # type: ignore
     print(save_message)
 except Exception as e:
     print("Error parsing response", e, "Raw Response - ", raw_response)
